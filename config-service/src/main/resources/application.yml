@@ -1,13 +1,12 @@
 server:
   port: 8888
-
 spring:
+  profiles:
+    active: native
   application:
     name: config-server
-  profiles:
-    active: native # active profile là native, nghĩa là sử dụng file cấu hình ở local
   cloud:
     config:
       server:
         native:
-          search-locations: classpath:/configurations # các file cấu hình sẽ được lưu ở vị trí này
+          search-locations: classpath:/configurations
