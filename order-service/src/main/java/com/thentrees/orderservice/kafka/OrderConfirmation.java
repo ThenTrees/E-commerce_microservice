@@ -3,6 +3,7 @@ import com.thentrees.orderservice.customer.CustomerResponse;
 import com.thentrees.orderservice.order.PaymentMethod;
 import com.thentrees.orderservice.product.PurchaseResponse;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -13,8 +14,8 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class OrderConfirmation implements Serializable {
-
     private String orderReference;
     private BigDecimal totalAmount;
     private PaymentMethod paymentMethod;

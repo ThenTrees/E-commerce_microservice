@@ -67,7 +67,8 @@ public class EmailService {
             String destinationEmail,
             String customerName,
             BigDecimal amount,
-            String orderReference, List<Product> products
+            String orderReference,
+            List<Product> products
     ) throws MessagingException {
         MimeMessage mimeMessage = javaMailSender.createMimeMessage();
         MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED, UTF_8.name());

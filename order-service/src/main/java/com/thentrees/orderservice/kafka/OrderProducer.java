@@ -17,12 +17,13 @@ public class OrderProducer {
 
     public void sendOrderConfirmation(OrderConfirmation orderConfirmation) {
         log.info("Sending order confirmation");
-
+        log.info("Order confirmation: {}", orderConfirmation.toString());
         Message<OrderConfirmation> message = MessageBuilder
                 .withPayload(orderConfirmation)
                 .setHeader(TOPIC, "order-topic")
                 .build();
         kafkaTemplate.send(message);
+        log.info("Send order confirmation successfully");
     }
 
 }

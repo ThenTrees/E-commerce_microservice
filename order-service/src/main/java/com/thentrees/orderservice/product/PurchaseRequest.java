@@ -11,7 +11,7 @@ import org.springframework.validation.annotation.Validated;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class PurchaseRequest {
+public class  PurchaseRequest {
     @NotNull(message = "Product is mandatory")
     private Integer productId;
     @Positive(message = "Quantity is mandatory")

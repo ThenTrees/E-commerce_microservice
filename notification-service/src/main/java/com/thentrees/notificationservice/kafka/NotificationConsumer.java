@@ -3,7 +3,6 @@ package com.thentrees.notification.kafka;
 import com.thentrees.notification.email.EmailService;
 import com.thentrees.notification.kafka.order.OrderConfirmation;
 import com.thentrees.notification.kafka.payment.PaymentConfirmation;
-import com.thentrees.notification.kafka.payment.PaymentMethod;
 import com.thentrees.notification.notification.Notification;
 import com.thentrees.notification.notification.NotificationRepository;
 import com.thentrees.notification.notification.NotificationType;

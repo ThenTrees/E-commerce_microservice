@@ -1,4 +1,4 @@
-package com.thentrees.discoveryserver;
+package com.thentrees.discoveryservice;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

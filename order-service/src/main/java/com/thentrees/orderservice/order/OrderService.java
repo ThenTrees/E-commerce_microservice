@@ -1,5 +1,6 @@
 package com.thentrees.orderservice.order;
 
+import com.thentrees.orderservice.customer.CustomerResponse;
 import com.thentrees.orderservice.customer.ICustomerClient;
 import com.thentrees.orderservice.exception.BusinessException;
 import com.thentrees.orderservice.kafka.OrderConfirmation;
@@ -12,6 +13,7 @@ import com.thentrees.orderservice.product.ProductClient;
 import com.thentrees.orderservice.product.PurchaseRequest;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,6 +22,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class OrderService {
     private final OrderRepository orderRepository;
     private final OrderMapper mapper;
@@ -31,6 +34,7 @@ public class OrderService {
 
     @Transactional
     public Integer createOrder(OrderRequest orderRequest) {
+        log.info("Creating order: {}", orderRequest);
         var customer = customerClient.findCustomerById(orderRequest.getCustomerId())
                 .orElseThrow(() -> new BusinessException("Cannot create order:: No customer exists with the provided ID"));
 
@@ -38,24 +42,39 @@ public class OrderService {
         var order = this.orderRepository.save(mapper.toOrder(orderRequest));
 
         for (PurchaseRequest purchaseRequest:orderRequest.getProducts()){
-            orderLineService.saveOrderLine(new OrderLineRequest(null, order.getId(),purchaseRequest.getProductId(),purchaseRequest.getQuantity()));
+            orderLineService.saveOrderLine(
+                    new OrderLineRequest(
+                            null,
+                            order.getId(),
+                            purchaseRequest.getProductId(),
+                            purchaseRequest.getQuantity()
+                    )
+            );
         }
-        // todo start payment process
-        orderProducer.sendOrderConfirmation(new OrderConfirmation(orderRequest.getReference(),
-                orderRequest.getAmount(),
-                orderRequest.getPaymentMethod(),
-                customer,
-                purchaseProducts));
 
-        var paymentRequest = new PaymentRequest(
-                orderRequest.getAmount(),
-                orderRequest.getPaymentMethod(),
-                orderRequest.getId(),
-                orderRequest.getReference(),
-                customer
-        );
+        var paymentRequest = PaymentRequest.builder()
+                .amount(orderRequest.getAmount())
+                .paymentMethod(orderRequest.getPaymentMethod())
+                .orderId(order.getId())
+                .orderReference(order.getReference())
+                .customerResponse(customer)
+                .build();
 
-        paymentClient.requestOrderPayment(paymentRequest);
+        try{
+            paymentClient.requestOrderPayment(paymentRequest);
+        } catch (Exception e) {
+            log.info("OrderService:::send request order payment error: {}", e.getMessage());
+        }
+        // todo start send order confirmation process
+        orderProducer.sendOrderConfirmation(
+                OrderConfirmation.builder()
+                        .orderReference(orderRequest.getReference())
+                        .totalAmount(orderRequest.getAmount())
+                        .paymentMethod(orderRequest.getPaymentMethod())
+                        .customerResponse(customer)
+                        .products(purchaseProducts)
+                        .build()
+                );
 
         return order.getId();
     }

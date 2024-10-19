@@ -16,7 +16,7 @@ import java.util.List;
 @Data
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class OrderRequest {
-    private Integer id;
+//    private Integer id;
     private String reference;
     @Positive(message = "order amount must be greater than 0")
     private BigDecimal amount;
